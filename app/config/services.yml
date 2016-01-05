@@ -4,6 +4,20 @@ parameters:
 #    parameter_name: value
 
 services:
-#    service_name:
-#        class: AppBundle\Directory\ClassName
-#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+
+    app.service.shell_command_repository:
+        class: %app.service.shell_command_repository%
+
+    app.service.shell_output_repository:
+        class: AppBundle\Service\Terminal\LowLevel\ShellOutputRepository
+
+    app.service.terminal_explorer:
+        class: AppBundle\Service\TerminalExplorer
+        arguments:
+            - @app.service.shell_command_repository
+
+    app.service.terminal_drawer:
+        class: AppBundle\Service\TerminalDrawer
+        arguments:
+            - @app.service.shell_command_repository
+            - @app.service.shell_output_repository
