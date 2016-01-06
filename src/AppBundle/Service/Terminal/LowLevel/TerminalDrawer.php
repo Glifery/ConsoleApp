@@ -6,7 +6,7 @@ use AppBundle\Model\Terminal\DrawTable;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class ShellOutputRepository
+ * Class TerminalDrawer
  * @package AppBundle\Service\Terminal\LowLevel
  */
 class TerminalDrawer

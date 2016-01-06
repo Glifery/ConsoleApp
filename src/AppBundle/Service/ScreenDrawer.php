@@ -11,7 +11,7 @@ use AppBundle\Service\Terminal\LowLevel\ShellCommandRepository;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
- * Class TerminalDrawer
+ * Class ScreenDrawer
  * @package AppBundle\Service
  */
 class ScreenDrawer

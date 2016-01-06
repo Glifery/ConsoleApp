@@ -29,8 +29,8 @@ class TestCommand extends ContainerAwareCommand
         $screenDrawer = $this->getContainer()->get('app.service.screen_drawer');
         $screenDrawer->initDraw($output);
 
-        $terminalExplorer = $this->getContainer()->get('app.service.terminal_explorer');
-        $rootWindow = $terminalExplorer->createRootWindow();
+        $screenExplorer = $this->getContainer()->get('app.service.screen_explorer');
+        $rootWindow = $screenExplorer->createRootWindow();
         $childWindow = $this->demoWindow($rootWindow);
         $screenDrawer->setRootWindow($rootWindow);
 

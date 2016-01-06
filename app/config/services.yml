@@ -11,8 +11,8 @@ services:
     app.service.terminal_drawer:
         class: AppBundle\Service\Terminal\LowLevel\TerminalDrawer
 
-    app.service.terminal_explorer:
-        class: AppBundle\Service\TerminalExplorer
+    app.service.screen_explorer:
+        class: AppBundle\Service\ScreenExplorer
         arguments:
             - @app.service.shell_command_repository
 

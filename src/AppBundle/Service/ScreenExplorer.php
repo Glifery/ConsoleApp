@@ -6,10 +6,10 @@ use AppBundle\Model\Space\Window;
 use AppBundle\Service\Terminal\LowLevel\ShellCommandRepository;
 
 /**
- * Class TerminalExplorer
+ * Class ScreenExplorer
  * @package AppBundle\Service
  */
-class TerminalExplorer
+class ScreenExplorer
 {
     /**
      * @var ShellCommandRepository
