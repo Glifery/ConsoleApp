@@ -6,6 +6,7 @@ use AppBundle\Model\Space\Object;
 use AppBundle\Model\Space\Point;
 use AppBundle\Model\Space\Window;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
+use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -25,24 +26,26 @@ class TestCommand extends ContainerAwareCommand
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $terminalDrawer = $this->getContainer()->get('app.service.terminal_drawer');
-        $terminalDrawer->initDraw($output);
+        $screenDrawer = $this->getContainer()->get('app.service.screen_drawer');
+        $screenDrawer->initDraw($output);
 
         $terminalExplorer = $this->getContainer()->get('app.service.terminal_explorer');
         $rootWindow = $terminalExplorer->createRootWindow();
         $childWindow = $this->demoWindow($rootWindow);
-        $terminalDrawer->setRootWIndow($rootWindow);
+        $screenDrawer->setRootWindow($rootWindow);
 
         $output->writeln('1-'.$rootWindow->getWidth().'x'.$rootWindow->getHeight());
         $output->writeln('2-'.$rootWindow->getWidth().'x'.$rootWindow->getHeight());
         $output->writeln('3-'.$rootWindow->getWidth().'x'.$rootWindow->getHeight());
         $output->writeln('4-'.$rootWindow->getWidth().'x'.$rootWindow->getHeight());
-        $terminalDrawer->redraw();
+        $screenDrawer->redraw();
         while (true) {
             sleep(1);
             $childWindow->addX(1);
-            $terminalDrawer->redraw();
+            $screenDrawer->redraw();
         }
+
+        new OutputFormatterStyle();
 //        $output->write('d');
 //        $output->writeln("\033[K");
     }
@@ -63,16 +66,19 @@ class TestCommand extends ContainerAwareCommand
         $point = new Point('Q');
         $point->setX(-1);
         $point->setY(-1);
+        $point->setStyle(new OutputFormatterStyle('red', 'yellow', array('bold', 'blink')));
         $object->addPoint($point);
 
         $point = new Point('D');
         $point->setX(1);
         $point->setY(0);
+        $point->setStyle(new OutputFormatterStyle('red', 'black', array('underscore')));
         $object->addPoint($point);
 
         $point = new Point('Z');
         $point->setX(-1);
         $point->setY(1);
+        $point->setStyle(new OutputFormatterStyle('red', 'yellow', array('bold')));
         $object->addPoint($point);
 
         $childWindow = new Window();

@@ -9,7 +9,7 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class ShellOutputRepository
  * @package AppBundle\Service\Terminal\LowLevel
  */
-class ShellOutputRepository
+class TerminalDrawer
 {
     /** @var OutputInterface */
     private $output;

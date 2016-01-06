@@ -6,7 +6,7 @@ use AppBundle\Model\Space\Object;
 use AppBundle\Model\Space\Point;
 use AppBundle\Model\Space\Window;
 use AppBundle\Model\Terminal\DrawTable;
-use AppBundle\Service\Terminal\LowLevel\ShellOutputRepository;
+use AppBundle\Service\Terminal\LowLevel\TerminalDrawer;
 use AppBundle\Service\Terminal\LowLevel\ShellCommandRepository;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -14,25 +14,25 @@ use Symfony\Component\Console\Output\OutputInterface;
  * Class TerminalDrawer
  * @package AppBundle\Service
  */
-class TerminalDrawer
+class ScreenDrawer
 {
     /** @var ShellCommandRepository */
     private $shellCommandRepository;
 
-    /** @var ShellOutputRepository */
-    private $shellOutputRepository;
+    /** @var TerminalDrawer */
+    private $terminalDrawer;
 
     /** @var Window */
     private $rootWIndow;
 
     /**
      * @param ShellCommandRepository $shellCommandRepository
-     * @param ShellOutputRepository $shellOutputRepository
+     * @param TerminalDrawer $terminalDrawer
      */
-    public function __construct(ShellCommandRepository $shellCommandRepository, ShellOutputRepository $shellOutputRepository)
+    public function __construct(ShellCommandRepository $shellCommandRepository, TerminalDrawer $terminalDrawer)
     {
         $this->shellCommandRepository = $shellCommandRepository;
-        $this->shellOutputRepository = $shellOutputRepository;
+        $this->terminalDrawer = $terminalDrawer;
     }
 
     /**
@@ -47,7 +47,7 @@ class TerminalDrawer
      * @param Window $rootWIndow
      * @return $this
      */
-    public function setRootWIndow(Window $rootWIndow)
+    public function setRootWindow(Window $rootWIndow)
     {
         $this->rootWIndow = $rootWIndow;
 
@@ -59,7 +59,7 @@ class TerminalDrawer
      */
     public function initDraw(OutputInterface $output)
     {
-        $this->shellOutputRepository->setOutput($output);
+        $this->terminalDrawer->setOutput($output);
 
         $this->shellCommandRepository->resetTerminal();
     }
@@ -73,8 +73,8 @@ class TerminalDrawer
         $drawTable = new DrawTable($window->getWidth(), $window->getHeight());
         $this->recursiveDrawWindow($drawTable, $window, $window->getX(), $window->getY());
 
-        $this->shellOutputRepository->goToScreenStart();
-        $this->shellOutputRepository->drawTable($drawTable);
+        $this->terminalDrawer->goToScreenStart();
+        $this->terminalDrawer->drawTable($drawTable);
     }
 
     /**
@@ -130,7 +130,7 @@ class TerminalDrawer
             return;
         }
 
-        $symbol = $point->getSymbol();
+        $symbol = $point->getStyledSymbol();
         $drawTable->setSymbol($symbol, $x, $y);
     }
 }

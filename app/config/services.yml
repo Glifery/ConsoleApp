@@ -8,16 +8,16 @@ services:
     app.service.shell_command_repository:
         class: %app.service.shell_command_repository%
 
-    app.service.shell_output_repository:
-        class: AppBundle\Service\Terminal\LowLevel\ShellOutputRepository
+    app.service.terminal_drawer:
+        class: AppBundle\Service\Terminal\LowLevel\TerminalDrawer
 
     app.service.terminal_explorer:
         class: AppBundle\Service\TerminalExplorer
         arguments:
             - @app.service.shell_command_repository
 
-    app.service.terminal_drawer:
-        class: AppBundle\Service\TerminalDrawer
+    app.service.screen_drawer:
+        class: AppBundle\Service\ScreenDrawer
         arguments:
             - @app.service.shell_command_repository
-            - @app.service.shell_output_repository
+            - @app.service.terminal_drawer
