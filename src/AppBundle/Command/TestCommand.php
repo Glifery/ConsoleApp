@@ -39,7 +39,7 @@ class TestCommand extends ContainerAwareCommand
         $output->writeln('4-'.$rootWindow->getWidth().'x'.$rootWindow->getHeight());
         $terminalDrawer->redraw();
         while (true) {
-            sleep(0.2);
+            sleep(1);
             $childWindow->addX(1);
             $terminalDrawer->redraw();
         }
@@ -53,9 +53,11 @@ class TestCommand extends ContainerAwareCommand
      */
     private function demoWindow(Window $window)
     {
+        $window->addObject(new Object\Border($window->getWidth(), $window->getHeight()));
+
         $object = new Object();
         $object->setX(10);
-        $object->setY(15);
+        $object->setY(14);
         $window->addObject($object);
 
         $point = new Point('Q');
@@ -80,7 +82,8 @@ class TestCommand extends ContainerAwareCommand
         $childWindow->setHeight(15);
         $childWindow->addObject($object);
         $window->addChild($childWindow);
+        $childWindow->addObject(new Object\Border($childWindow->getWidth(), $childWindow->getHeight()), '*');
 
         return $childWindow;
     }
-} 
+}

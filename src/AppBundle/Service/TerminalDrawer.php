@@ -90,7 +90,7 @@ class TerminalDrawer
         }
 
         foreach ($window->getObjects() as $object) {
-            $this->recursiveDrawObject($drawTable, $object, $offsetX + $object->getX(), $offsetY + $object->getY(), $window->getWidth(), $window->getHeight());
+            $this->recursiveDrawObject($drawTable, $object, $offsetX + $object->getX(), $offsetY + $object->getY(), $offsetX + $window->getWidth(), $offsetY + $window->getHeight());
         }
     }
 
@@ -99,13 +99,13 @@ class TerminalDrawer
      * @param Object $object
      * @param int $offsetX
      * @param int $offsetY
-     * @param int $width
-     * @param int $height
+     * @param int $windowMaxX
+     * @param int $windowMaxY
      */
-    private function recursiveDrawObject(DrawTable $drawTable, Object $object, $offsetX = 0, $offsetY = 0, $width = 0, $height = 0)
+    private function recursiveDrawObject(DrawTable $drawTable, Object $object, $offsetX = 0, $offsetY = 0, $windowMaxX = 0, $windowMaxY = 0)
     {
         foreach ($object->getPoints() as $point) {
-            $this->recursiveDrawPoint($drawTable, $point, $offsetX + $point->getX(), $offsetY + $point->getY(), $width, $height);
+            $this->recursiveDrawPoint($drawTable, $point, $offsetX + $point->getX(), $offsetY + $point->getY(), $windowMaxX, $windowMaxY);
         }
     }
 
@@ -114,16 +114,18 @@ class TerminalDrawer
      * @param Point $point
      * @param int $x
      * @param int $y
-     * @param int $width
-     * @param int $height
+     * @param int $windowMaxX
+     * @param int $windowMaxY
      */
-    private function recursiveDrawPoint(DrawTable $drawTable, Point $point, $x = 0, $y = 0, $width = 0, $height = 0)
+    private function recursiveDrawPoint(DrawTable $drawTable, Point $point, $x = 0, $y = 0, $windowMaxX = 0, $windowMaxY = 0)
     {
         if (
             ($x < 0) ||
-            ($x > $drawTable->getWidth()) ||
+            ($x >= $drawTable->getWidth()) ||
+            ($x >= $windowMaxX) ||
             ($y < 0) ||
-            ($y > $drawTable->getHeight())
+            ($y >= $drawTable->getHeight() ||
+            ($y >= $windowMaxY))
         ) {
             return;
         }
