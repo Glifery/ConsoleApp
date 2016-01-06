@@ -3,10 +3,17 @@
 namespace AppBundle\Model\Space;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use AppBundle\Model\Space\Options\Positionable;
+use AppBundle\Model\Space\Options\Stylable;
 
+/**
+ * Class Object
+ * @package AppBundle\Model\Space
+ */
 class Object
 {
-    use PositionableTrait;
+    use Positionable;
+    use Stylable;
 
     /** @var ArrayCollection|Point[] */
     private $points;

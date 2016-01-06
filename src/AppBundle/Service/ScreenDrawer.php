@@ -8,6 +8,7 @@ use AppBundle\Model\Space\Window;
 use AppBundle\Model\Terminal\DrawTable;
 use AppBundle\Service\Terminal\LowLevel\TerminalDrawer;
 use AppBundle\Service\Terminal\LowLevel\ShellCommandRepository;
+use Symfony\Component\Console\Formatter\OutputFormatterStyleInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 /**
@@ -71,7 +72,7 @@ class ScreenDrawer
         }
 
         $drawTable = new DrawTable($window->getWidth(), $window->getHeight());
-        $this->recursiveDrawWindow($drawTable, $window, $window->getX(), $window->getY());
+        $this->recursiveDrawWindow($drawTable, $window, $window->getStyle(), $window->getX(), $window->getY());
 
         $this->terminalDrawer->goToScreenStart();
         $this->terminalDrawer->drawTable($drawTable);
@@ -80,44 +81,60 @@ class ScreenDrawer
     /**
      * @param DrawTable $drawTable
      * @param Window $window
-     * @param integer $offsetX
-     * @param integer $offsetY
+     * @param OutputFormatterStyleInterface $style
+     * @param int $offsetX
+     * @param int $offsetY
      */
-    private function recursiveDrawWindow(DrawTable $drawTable, Window $window, $offsetX = 0, $offsetY = 0)
+    private function recursiveDrawWindow(DrawTable $drawTable, Window $window, OutputFormatterStyleInterface $style = null, $offsetX = 0, $offsetY = 0)
     {
         foreach ($window->getChildren() as $child) {
-            $this->recursiveDrawWindow($drawTable, $child, $offsetX + $child->getX(), $offsetY + $child->getY());
+            $newStyle = $child->getStyleOrParent($style);
+            $newOffsetX = $offsetX + $child->getX();
+            $newOffsetY = $offsetY + $child->getY();
+
+            $this->recursiveDrawWindow($drawTable, $child, $newStyle, $newOffsetX, $newOffsetY);
         }
 
         foreach ($window->getObjects() as $object) {
-            $this->recursiveDrawObject($drawTable, $object, $offsetX + $object->getX(), $offsetY + $object->getY(), $offsetX + $window->getWidth(), $offsetY + $window->getHeight());
+            $newStyle = $object->getStyleOrParent($style);
+            $newOffsetX = $offsetX + $object->getX();
+            $newOffsetY = $offsetY + $object->getY();
+            $newWindowMaxX = $offsetX + $window->getWidth();
+            $newWindowMaxY = $offsetY + $window->getHeight();
+
+            $this->recursiveDrawObject($drawTable, $object, $newStyle, $newOffsetX, $newOffsetY, $newWindowMaxX, $newWindowMaxY);
         }
     }
 
     /**
      * @param DrawTable $drawTable
      * @param Object $object
+     * @param OutputFormatterStyleInterface $style
      * @param int $offsetX
      * @param int $offsetY
      * @param int $windowMaxX
      * @param int $windowMaxY
      */
-    private function recursiveDrawObject(DrawTable $drawTable, Object $object, $offsetX = 0, $offsetY = 0, $windowMaxX = 0, $windowMaxY = 0)
+    private function recursiveDrawObject(DrawTable $drawTable, Object $object, OutputFormatterStyleInterface $style = null, $offsetX = 0, $offsetY = 0, $windowMaxX = 0, $windowMaxY = 0)
     {
         foreach ($object->getPoints() as $point) {
-            $this->recursiveDrawPoint($drawTable, $point, $offsetX + $point->getX(), $offsetY + $point->getY(), $windowMaxX, $windowMaxY);
+            $newOffsetX = $offsetX + $point->getX();
+            $newOffsetY = $offsetY + $point->getY();
+
+            $this->recursiveDrawPoint($drawTable, $point, $style, $newOffsetX, $newOffsetY, $windowMaxX, $windowMaxY);
         }
     }
 
     /**
      * @param DrawTable $drawTable
      * @param Point $point
+     * @param OutputFormatterStyleInterface $style
      * @param int $x
      * @param int $y
      * @param int $windowMaxX
      * @param int $windowMaxY
      */
-    private function recursiveDrawPoint(DrawTable $drawTable, Point $point, $x = 0, $y = 0, $windowMaxX = 0, $windowMaxY = 0)
+    private function recursiveDrawPoint(DrawTable $drawTable, Point $point, OutputFormatterStyleInterface $style = null, $x = 0, $y = 0, $windowMaxX = 0, $windowMaxY = 0)
     {
         if (
             ($x < 0) ||
@@ -130,7 +147,11 @@ class ScreenDrawer
             return;
         }
 
-        $symbol = $point->getStyledSymbol();
+        if ($style = $newStyle = $point->getStyleOrParent($style)) {
+            $symbol = $style->apply($point->getStyledSymbol());
+        } else {
+            $symbol = $point->getStyledSymbol();
+        }
         $drawTable->setSymbol($symbol, $x, $y);
     }
 }

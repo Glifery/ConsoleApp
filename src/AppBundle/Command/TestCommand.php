@@ -57,6 +57,7 @@ class TestCommand extends ContainerAwareCommand
     private function demoWindow(Window $window)
     {
         $window->addObject(new Object\Border($window->getWidth(), $window->getHeight()));
+        $window->setStyle(new OutputFormatterStyle('white', 'green'));
 
         $object = new Object();
         $object->setX(10);

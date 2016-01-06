@@ -3,10 +3,17 @@
 namespace AppBundle\Model\Space;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use AppBundle\Model\Space\Options\Positionable;
+use AppBundle\Model\Space\Options\Stylable;
 
+/**
+ * Class Window
+ * @package AppBundle\Model\Space
+ */
 class Window
 {
-    use PositionableTrait;
+    use Positionable;
+    use Stylable;
 
     /** @var integer */
     private $width;

@@ -1,8 +1,8 @@
 <?php
 
-namespace AppBundle\Model\Space;
+namespace AppBundle\Model\Space\Options;
 
-trait PositionableTrait
+trait Positionable
 {
     /** @var integer */
     private $x;

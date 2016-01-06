@@ -2,17 +2,20 @@
 
 namespace AppBundle\Model\Space;
 
-use Symfony\Component\Console\Formatter\OutputFormatterStyleInterface;
+use AppBundle\Model\Space\Options\Positionable;
+use AppBundle\Model\Space\Options\Stylable;
 
+/**
+ * Class Point
+ * @package AppBundle\Model\Space
+ */
 class Point
 {
-    use PositionableTrait;
+    use Positionable;
+    use Stylable;
 
     /** @var string */
     private $symbol;
-
-    /** @var OutputFormatterStyleInterface */
-    private $style;
 
     public function __construct($symbol)
     {
@@ -48,25 +51,6 @@ class Point
     public function setSymbol($symbol)
     {
         $this->symbol = $symbol;
-
-        return $this;
-    }
-
-    /**
-     * @return OutputFormatterStyleInterface
-     */
-    public function getStyle()
-    {
-        return $this->style;
-    }
-
-    /**
-     * @param OutputFormatterStyleInterface $style
-     * @return $this
-     */
-    public function setStyle($style)
-    {
-        $this->style = $style;
 
         return $this;
     }
