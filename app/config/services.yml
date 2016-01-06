@@ -5,6 +5,15 @@ parameters:
 
 services:
 
+    app.service.life_cycle.cycle_handler:
+        class: AppBundle\Service\LifeCycle\CycleHandler
+
+    app.service.life_cycle.cycle_loop:
+        class: AppBundle\Service\LifeCycle\CycleLoop
+        arguments:
+            - @app.service.shell_command_repository
+            - @app.service.life_cycle.cycle_handler
+
     app.service.shell_command_repository:
         class: %app.service.shell_command_repository%
 

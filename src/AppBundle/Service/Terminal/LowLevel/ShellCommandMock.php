@@ -28,4 +28,14 @@ class ShellCommandMock extends ShellCommandRepository
     {
 
     }
+
+    public function switchInputToTextMode()
+    {
+        shell_exec('stty +echo +icanon');
+    }
+
+    public function switchInputToCatchMode()
+    {
+
+    }
 } 

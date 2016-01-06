@@ -34,20 +34,15 @@ class TestCommand extends ContainerAwareCommand
         $childWindow = $this->demoWindow($rootWindow);
         $screenDrawer->setRootWindow($rootWindow);
 
-        $output->writeln('1-'.$rootWindow->getWidth().'x'.$rootWindow->getHeight());
-        $output->writeln('2-'.$rootWindow->getWidth().'x'.$rootWindow->getHeight());
-        $output->writeln('3-'.$rootWindow->getWidth().'x'.$rootWindow->getHeight());
-        $output->writeln('4-'.$rootWindow->getWidth().'x'.$rootWindow->getHeight());
+        $cycleLoop = $this->getContainer()->get('app.service.life_cycle.cycle_loop');
+        $cycleLoop->run($output);
+
         $screenDrawer->redraw();
         while (true) {
             sleep(1);
             $childWindow->addX(1);
             $screenDrawer->redraw();
         }
-
-        new OutputFormatterStyle();
-//        $output->write('d');
-//        $output->writeln("\033[K");
     }
 
     /**
@@ -57,7 +52,7 @@ class TestCommand extends ContainerAwareCommand
     private function demoWindow(Window $window)
     {
         $window->addObject(new Object\Border($window->getWidth(), $window->getHeight()));
-        $window->setStyle(new OutputFormatterStyle('white', 'green'));
+        $window->setStyle(new OutputFormatterStyle('white', 'red'));
 
         $object = new Object();
         $object->setX(10);

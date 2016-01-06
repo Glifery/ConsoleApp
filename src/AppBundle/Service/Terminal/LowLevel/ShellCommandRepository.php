@@ -32,4 +32,14 @@ class ShellCommandRepository
     {
         shell_exec('reset');
     }
+
+    public function switchInputToTextMode()
+    {
+        shell_exec('stty echo icanon');
+    }
+
+    public function switchInputToCatchMode()
+    {
+        shell_exec('stty -echo -icanon');
+    }
 } 
