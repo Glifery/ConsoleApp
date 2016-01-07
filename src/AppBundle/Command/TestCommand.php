@@ -87,9 +87,9 @@ class TestCommand extends ContainerAwareCommand
         $childWindow->setY(20);
         $childWindow->setWidth(15);
         $childWindow->setHeight(15);
+        $childWindow->addObject(new Object\Border($childWindow->getWidth(), $childWindow->getHeight()), '*');
         $childWindow->addObject($object);
         $window->addChild($childWindow);
-        $childWindow->addObject(new Object\Border($childWindow->getWidth(), $childWindow->getHeight()), '*');
 
         return $object;
     }

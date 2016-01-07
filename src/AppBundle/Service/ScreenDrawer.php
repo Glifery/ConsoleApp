@@ -2,6 +2,7 @@
 
 namespace AppBundle\Service;
 
+use AppBundle\Model\Screen\WindowBounds;
 use AppBundle\Model\Space\Object;
 use AppBundle\Model\Space\Point;
 use AppBundle\Model\Space\Window;
@@ -95,14 +96,13 @@ class ScreenDrawer
             $this->recursiveDrawWindow($drawTable, $child, $newStyle, $newOffsetX, $newOffsetY);
         }
 
+        $windowBounds = $this->createBoundsForWindow($window, $offsetX, $offsetY);
         foreach ($window->getObjects() as $object) {
             $newStyle = $object->getStyleOrParent($style);
             $newOffsetX = $offsetX + $object->getX();
             $newOffsetY = $offsetY + $object->getY();
-            $newWindowMaxX = $offsetX + $window->getWidth();
-            $newWindowMaxY = $offsetY + $window->getHeight();
 
-            $this->recursiveDrawObject($drawTable, $object, $newStyle, $newOffsetX, $newOffsetY, $newWindowMaxX, $newWindowMaxY);
+            $this->recursiveDrawObject($drawTable, $object, $newStyle, $newOffsetX, $newOffsetY, $windowBounds);
         }
     }
 
@@ -112,16 +112,15 @@ class ScreenDrawer
      * @param OutputFormatterStyleInterface $style
      * @param int $offsetX
      * @param int $offsetY
-     * @param int $windowMaxX
-     * @param int $windowMaxY
+     * @param WindowBounds $windowBounds
      */
-    private function recursiveDrawObject(DrawTable $drawTable, Object $object, OutputFormatterStyleInterface $style = null, $offsetX = 0, $offsetY = 0, $windowMaxX = 0, $windowMaxY = 0)
+    private function recursiveDrawObject(DrawTable $drawTable, Object $object, OutputFormatterStyleInterface $style = null, $offsetX = 0, $offsetY = 0, WindowBounds $windowBounds)
     {
         foreach ($object->getPoints() as $point) {
             $newOffsetX = $offsetX + $point->getX();
             $newOffsetY = $offsetY + $point->getY();
 
-            $this->recursiveDrawPoint($drawTable, $point, $style, $newOffsetX, $newOffsetY, $windowMaxX, $windowMaxY);
+            $this->recursiveDrawPoint($drawTable, $point, $style, $newOffsetX, $newOffsetY, $windowBounds);
         }
     }
 
@@ -131,19 +130,11 @@ class ScreenDrawer
      * @param OutputFormatterStyleInterface $style
      * @param int $x
      * @param int $y
-     * @param int $windowMaxX
-     * @param int $windowMaxY
+     * @param WindowBounds $windowBounds
      */
-    private function recursiveDrawPoint(DrawTable $drawTable, Point $point, OutputFormatterStyleInterface $style = null, $x = 0, $y = 0, $windowMaxX = 0, $windowMaxY = 0)
+    private function recursiveDrawPoint(DrawTable $drawTable, Point $point, OutputFormatterStyleInterface $style = null, $x = 0, $y = 0, WindowBounds $windowBounds)
     {
-        if (
-            ($x < 0) ||
-            ($x >= $drawTable->getWidth()) ||
-            ($x >= $windowMaxX) ||
-            ($y < 0) ||
-            ($y >= $drawTable->getHeight() ||
-            ($y >= $windowMaxY))
-        ) {
+        if ($this->outOfBoundsCheck($x, $y, $drawTable, $windowBounds)) {
             return;
         }
 
@@ -153,5 +144,45 @@ class ScreenDrawer
             $symbol = $point->getStyledSymbol();
         }
         $drawTable->setSymbol($symbol, $x, $y);
+    }
+
+    /**
+     * @param Window $window
+     * @param integer $offsetX
+     * @param integer $offsetY
+     * @return WindowBounds
+     */
+    private function createBoundsForWindow(Window $window, $offsetX, $offsetY)
+    {
+        $windowBounds = new WindowBounds();
+        $windowBounds->setMinX($offsetX);
+        $windowBounds->setMinY($offsetY);
+        $windowBounds->setMaxX($offsetX + $window->getWidth());
+        $windowBounds->setMaxY($offsetY + $window->getHeight());
+
+        return $windowBounds;
+    }
+
+    /**
+     * @param integer $x
+     * @param integer $y
+     * @param DrawTable $drawTable
+     * @param WindowBounds $windowBounds
+     * @return bool
+     */
+    private function outOfBoundsCheck($x, $y, DrawTable $drawTable, WindowBounds $windowBounds)
+    {
+        if (
+            ($x < $windowBounds->getMinX()) ||
+            ($x >= $windowBounds->getMaxX()) ||
+            ($x >= $drawTable->getWidth()) ||
+            ($y < $windowBounds->getMinY()) ||
+            ($y >= $windowBounds->getMaxY()) ||
+            ($y >= $drawTable->getHeight())
+        ) {
+            return true;
+        }
+
+        return false;
     }
 }
