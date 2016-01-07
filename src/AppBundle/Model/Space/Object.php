@@ -5,6 +5,7 @@ namespace AppBundle\Model\Space;
 use Doctrine\Common\Collections\ArrayCollection;
 use AppBundle\Model\Space\Options\Positionable;
 use AppBundle\Model\Space\Options\Stylable;
+use AppBundle\Model\Space\Options\Depthable;
 
 /**
  * Class Object
@@ -14,6 +15,7 @@ class Object
 {
     use Positionable;
     use Stylable;
+    use Depthable;
 
     /** @var ArrayCollection|Point[] */
     private $points;

@@ -6,6 +6,7 @@ use AppBundle\Model\Screen\WindowBounds;
 use AppBundle\Model\Space\Object;
 use AppBundle\Model\Space\Point;
 use AppBundle\Model\Space\Window;
+use AppBundle\Model\Terminal\DepthRegister;
 use AppBundle\Model\Terminal\DrawTable;
 use AppBundle\Service\Terminal\LowLevel\TerminalDrawer;
 use AppBundle\Service\Terminal\LowLevel\ShellCommandRepository;
@@ -26,6 +27,12 @@ class ScreenDrawer
 
     /** @var Window */
     private $rootWIndow;
+
+    /** @var DrawTable */
+    private $drawTable;
+
+    /** @var DepthRegister */
+    private $depthRegister;
 
     /**
      * @param ShellCommandRepository $shellCommandRepository
@@ -72,69 +79,81 @@ class ScreenDrawer
             throw new \TerminalDrawerException('Trying to redraw terminal without window');
         }
 
-        $drawTable = new DrawTable($window->getWidth(), $window->getHeight());
-        $this->recursiveDrawWindow($drawTable, $window, $window->getStyle(), $window->getX(), $window->getY());
+        $this->drawTable = new DrawTable($window->getWidth(), $window->getHeight());
+        $this->depthRegister = new DepthRegister();
+
+        $this->recursiveDrawWindow($window, $window->getStyle(), $window->getX(), $window->getY());
 
         $this->terminalDrawer->goToScreenStart();
-        $this->terminalDrawer->drawTable($drawTable);
+        $this->terminalDrawer->drawTable($this->drawTable);
+
+        $this->drawTable = null;
+        $this->depthRegister = null;
     }
 
     /**
-     * @param DrawTable $drawTable
      * @param Window $window
      * @param OutputFormatterStyleInterface $style
+     * @param int $depth
      * @param int $offsetX
      * @param int $offsetY
      */
-    private function recursiveDrawWindow(DrawTable $drawTable, Window $window, OutputFormatterStyleInterface $style = null, $offsetX = 0, $offsetY = 0)
+    private function recursiveDrawWindow(Window $window, OutputFormatterStyleInterface $style = null, $depth = 0, $offsetX = 0, $offsetY = 0)
     {
         foreach ($window->getChildren() as $child) {
             $newStyle = $child->getStyleOrParent($style);
+            $newDepth = $child->getDepthWithParent($depth);
             $newOffsetX = $offsetX + $child->getX();
             $newOffsetY = $offsetY + $child->getY();
 
-            $this->recursiveDrawWindow($drawTable, $child, $newStyle, $newOffsetX, $newOffsetY);
+            $this->recursiveDrawWindow($child, $newStyle, $newDepth, $newOffsetX, $newOffsetY);
         }
 
         $windowBounds = $this->createBoundsForWindow($window, $offsetX, $offsetY);
         foreach ($window->getObjects() as $object) {
             $newStyle = $object->getStyleOrParent($style);
+            $newDepth = $object->getDepthWithParent($depth);
             $newOffsetX = $offsetX + $object->getX();
             $newOffsetY = $offsetY + $object->getY();
 
-            $this->recursiveDrawObject($drawTable, $object, $newStyle, $newOffsetX, $newOffsetY, $windowBounds);
+            $this->deeperToDrawObject($object, $newStyle, $newDepth, $newOffsetX, $newOffsetY, $windowBounds);
         }
     }
 
     /**
-     * @param DrawTable $drawTable
      * @param Object $object
      * @param OutputFormatterStyleInterface $style
+     * @param int $depth
      * @param int $offsetX
      * @param int $offsetY
      * @param WindowBounds $windowBounds
      */
-    private function recursiveDrawObject(DrawTable $drawTable, Object $object, OutputFormatterStyleInterface $style = null, $offsetX = 0, $offsetY = 0, WindowBounds $windowBounds)
+    private function deeperToDrawObject(Object $object, OutputFormatterStyleInterface $style = null, $depth = 0, $offsetX = 0, $offsetY = 0, WindowBounds $windowBounds)
     {
         foreach ($object->getPoints() as $point) {
             $newOffsetX = $offsetX + $point->getX();
             $newOffsetY = $offsetY + $point->getY();
 
-            $this->recursiveDrawPoint($drawTable, $point, $style, $newOffsetX, $newOffsetY, $windowBounds);
+            $this->deeperToDrawPoint($point, $style, $depth, $newOffsetX, $newOffsetY, $windowBounds);
         }
     }
 
     /**
-     * @param DrawTable $drawTable
      * @param Point $point
      * @param OutputFormatterStyleInterface $style
+     * @param int $depth
      * @param int $x
      * @param int $y
      * @param WindowBounds $windowBounds
      */
-    private function recursiveDrawPoint(DrawTable $drawTable, Point $point, OutputFormatterStyleInterface $style = null, $x = 0, $y = 0, WindowBounds $windowBounds)
+    private function deeperToDrawPoint(Point $point, OutputFormatterStyleInterface $style = null, $depth = 0, $x = 0, $y = 0, WindowBounds $windowBounds)
     {
-        if ($this->outOfBoundsCheck($x, $y, $drawTable, $windowBounds)) {
+        if ($this->outOfBoundsCheck($x, $y, $this->drawTable, $windowBounds)) {
+            return;
+        }
+
+        $registeredDepth = $this->depthRegister->getDepthFor($x, $y);
+        if (($registeredDepth !== null) && ($depth < $registeredDepth)) {
             return;
         }
 
@@ -143,7 +162,9 @@ class ScreenDrawer
         } else {
             $symbol = $point->getStyledSymbol();
         }
-        $drawTable->setSymbol($symbol, $x, $y);
+
+        $this->drawTable->setSymbol($symbol, $x, $y);
+        $this->depthRegister->registerDepth($x, $y, $depth);
     }
 
     /**

@@ -62,11 +62,13 @@ class TestCommand extends ContainerAwareCommand
         $object = new Object();
         $object->setX(10);
         $object->setY(14);
+        $object->setDepth(2);
         $window->addObject($object);
 
         $point = new Point('Q');
         $point->setX(-1);
         $point->setY(-1);
+//        $point->setDepth(-1);
         $point->setStyle(new OutputFormatterStyle('red', 'yellow', array('bold', 'blink')));
         $object->addPoint($point);
 
@@ -85,6 +87,7 @@ class TestCommand extends ContainerAwareCommand
         $childWindow = new Window();
         $childWindow->setX(40);
         $childWindow->setY(20);
+        $childWindow->setDepth(10);
         $childWindow->setWidth(15);
         $childWindow->setHeight(15);
         $childWindow->addObject(new Object\Border($childWindow->getWidth(), $childWindow->getHeight()), '*');

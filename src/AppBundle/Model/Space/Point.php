@@ -4,6 +4,7 @@ namespace AppBundle\Model\Space;
 
 use AppBundle\Model\Space\Options\Positionable;
 use AppBundle\Model\Space\Options\Stylable;
+use AppBundle\Model\Space\Options\Depthable;
 
 /**
  * Class Point
@@ -13,6 +14,7 @@ class Point
 {
     use Positionable;
     use Stylable;
+    use Depthable;
 
     /** @var string */
     private $symbol;

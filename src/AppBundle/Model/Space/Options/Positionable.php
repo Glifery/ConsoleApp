@@ -2,6 +2,10 @@
 
 namespace AppBundle\Model\Space\Options;
 
+/**
+ * Class Positionable
+ * @package AppBundle\Model\Space\Options
+ */
 trait Positionable
 {
     /** @var integer */
