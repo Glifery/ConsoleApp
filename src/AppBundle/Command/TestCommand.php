@@ -2,9 +2,12 @@
 
 namespace AppBundle\Command;
 
+use AppBundle\Demo\DemoMovingHandler;
+use AppBundle\Model\LifeCycle\KeySchemaBuilder;
 use AppBundle\Model\Space\Object;
 use AppBundle\Model\Space\Point;
 use AppBundle\Model\Space\Window;
+use AppBundle\Tool\Char;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Input\InputInterface;
@@ -31,23 +34,25 @@ class TestCommand extends ContainerAwareCommand
 
         $screenExplorer = $this->getContainer()->get('app.service.screen_explorer');
         $rootWindow = $screenExplorer->createRootWindow();
-        $childWindow = $this->demoWindow($rootWindow);
+        $object = $this->demoWindow($rootWindow);
         $screenDrawer->setRootWindow($rootWindow);
 
-        $cycleLoop = $this->getContainer()->get('app.service.life_cycle.cycle_loop');
-        $cycleLoop->run($output);
+        $keySchema = KeySchemaBuilder::start()
+            ->add(Char::ARROW_RIGHT, new DemoMovingHandler($object), 'moveRight')
+            ->add(Char::ARROW_LEFT, new DemoMovingHandler($object), 'moveLeft')
+            ->add(Char::ARROW_UP, new DemoMovingHandler($object), 'moveUp')
+            ->add(Char::ARROW_DOWN, new DemoMovingHandler($object), 'moveDown')
+            ->finish()
+        ;
+        $this->getContainer()->get('app.service.life_cycle.cycle_input_manager')->loadKeySchema($keySchema);
 
-        $screenDrawer->redraw();
-        while (true) {
-            sleep(1);
-            $childWindow->addX(1);
-            $screenDrawer->redraw();
-        }
+        $cycleLoop = $this->getContainer()->get('app.service.life_cycle.cycle_loop');
+        $cycleLoop->run();
     }
 
     /**
      * @param Window $window
-     * @return Window
+     * @return Object
      */
     private function demoWindow(Window $window)
     {
@@ -86,6 +91,6 @@ class TestCommand extends ContainerAwareCommand
         $window->addChild($childWindow);
         $childWindow->addObject(new Object\Border($childWindow->getWidth(), $childWindow->getHeight()), '*');
 
-        return $childWindow;
+        return $object;
     }
 }

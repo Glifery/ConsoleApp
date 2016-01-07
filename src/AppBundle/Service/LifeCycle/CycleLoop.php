@@ -28,15 +28,17 @@ class CycleLoop
     /**
      * @return $this
      */
-    public function run($output)
+    public function run()
     {
         $this->shellCommandRepository->switchInputToCatchMode();
+
+        $this->cycleHandler->init();
 
         $this->isRun = true;
         while (($this->isRun) && ($symbol = fread(STDIN, 4096))) {
             $cycleEvent = $this->createCycleEvent($symbol);
 
-            $this->cycleHandler->handle($cycleEvent, $output);
+            $this->cycleHandler->handleIteration($cycleEvent);
         }
 
         $this->shellCommandRepository->switchInputToTextMode();
@@ -62,8 +64,7 @@ class CycleLoop
     {
         $cycleEvent = new CycleEvent();
         $cycleEvent->setCycleLoop($this);
-        $cycleEvent->setRawInput($symbol);
-        $cycleEvent->setCommand($symbol);
+        $cycleEvent->setInputSymbol($symbol);
 
         return $cycleEvent;
     }

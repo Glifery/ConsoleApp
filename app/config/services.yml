@@ -7,6 +7,12 @@ services:
 
     app.service.life_cycle.cycle_handler:
         class: AppBundle\Service\LifeCycle\CycleHandler
+        arguments:
+            - @app.service.life_cycle.cycle_input_manager
+            - @app.service.screen_drawer
+
+    app.service.life_cycle.cycle_input_manager:
+        class: AppBundle\Service\LifeCycle\CycleInputManager
 
     app.service.life_cycle.cycle_loop:
         class: AppBundle\Service\LifeCycle\CycleLoop

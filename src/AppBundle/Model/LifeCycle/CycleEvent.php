@@ -7,10 +7,7 @@ use AppBundle\Service\LifeCycle\CycleLoop;
 class CycleEvent
 {
     /** @var string */
-    private $rawInput;
-
-    /** @var string */
-    private $command;
+    private $inputSymbol;
 
     /** @var CycleLoop */
     private $cycleLoop;
@@ -18,37 +15,18 @@ class CycleEvent
     /**
      * @return string
      */
-    public function getCommand()
+    public function getInputSymbol()
     {
-        return $this->command;
+        return $this->inputSymbol;
     }
 
     /**
-     * @param string $command
+     * @param string $inputSymbol
      * @return $this
      */
-    public function setCommand($command)
+    public function setInputSymbol($inputSymbol)
     {
-        $this->command = $command;
-
-        return $this;
-    }
-
-    /**
-     * @return string
-     */
-    public function getRawInput()
-    {
-        return $this->rawInput;
-    }
-
-    /**
-     * @param string $rawInput
-     * @return $this
-     */
-    public function setRawInput($rawInput)
-    {
-        $this->rawInput = $rawInput;
+        $this->inputSymbol = $inputSymbol;
 
         return $this;
     }

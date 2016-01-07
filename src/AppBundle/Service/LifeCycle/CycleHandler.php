@@ -3,32 +3,49 @@
 namespace AppBundle\Service\LifeCycle;
 
 use AppBundle\Model\LifeCycle\CycleEvent;
+use AppBundle\Service\ScreenDrawer;
 use AppBundle\Tool\Char;
 
 class CycleHandler
 {
-    public function handle(CycleEvent $cycleEvent, $output)
+    /** @var CycleInputManager */
+    private $cycleInputNamager;
+
+    /** @var ScreenDrawer */
+    private $screenDrawer;
+
+    /**
+     * @param CycleInputManager $cycleInputManager
+     * @param ScreenDrawer $screenDrawer
+     */
+    public function __construct(CycleInputManager $cycleInputManager, ScreenDrawer $screenDrawer)
     {
-        $str = $cycleEvent->getRawInput();
-//        if (strpos($str, Char::ARROW_UP) !== false) {
-        if ($str === Char::ARROW_UP) {
-            $output->writeln('UP!!');
-        } elseif (strpos($str, "\e[B") !== false) {
-            $output->writeln('DOWN');
-        } elseif (strpos($str, "\e[C") !== false) {
-            $output->writeln('RIGHT');
-        } elseif (strpos($str, "\e[D") !== false) {
-            $output->writeln('LEFT');
-        } elseif ($str === Char::ENTER) {
-            $output->writeln('ENTER');
-        } elseif ($str === Char::ESCAPE) {
-            $output->writeln('ESCZPE');
-        } elseif ($str === Char::SPACE) {
-            $output->writeln('SPACE');
-        } else {
-            $output->writeln('->'.$str);
-            $cycleEvent->getCycleLoop()->stopRunning();
-        }
-        return;
+        $this->cycleInputNamager = $cycleInputManager;
+        $this->screenDrawer = $screenDrawer;
+    }
+
+    /**
+     * @return $this
+     * @throws \TerminalDrawerException
+     */
+    public function init()
+    {
+        $this->screenDrawer->redraw();
+
+        return $this;
+    }
+
+    /**
+     * @param CycleEvent $cycleEvent
+     * @return $this
+     * @throws \AppBundle\Exception\LifeCycle\CycleInputException
+     * @throws \TerminalDrawerException
+     */
+    public function handleIteration(CycleEvent $cycleEvent)
+    {
+        $this->cycleInputNamager->handleEventInput($cycleEvent);
+        $this->screenDrawer->redraw();
+
+        return $this;
     }
 }
